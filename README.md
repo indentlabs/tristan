@@ -11,7 +11,7 @@ After any character is generated, you can click the "Generate another character 
 ## Want to try it out?
 
 ### Join the Indent Labs discord to see it in action:
-[Click here for an invitation!](https://discord.gg/uM6EHxkeUX)
+[Click here for an invitation to the Indent Labs server](https://discord.gg/uM6EHxkeUX)
 
 ### Add it to your own server
 [Click here to invite the bot to your server](https://discord.com/api/oauth2/authorize?client_id=993994793225031810&permissions=277025442880&scope=applications.commands%20bot)
