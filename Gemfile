@@ -19,6 +19,8 @@ gem 'pg'
 gem 'discordrb', github: 'shardlab/discordrb', branch: 'main'
 gem 'faker', :git => 'https://github.com/faker-ruby/faker.git', :branch => 'master'
 gem 'random_word'
+gem 'bazaar'
+
 gem 'pry'
 gem 'redis'
 
@@ -55,5 +57,7 @@ end
 group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
+
+  gem 'sqlite3'
 end
 

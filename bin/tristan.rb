@@ -4,6 +4,7 @@ require 'pry'
 require 'redis'
 
 require 'random_word'
+require 'bazaar'
 
 # @redis = Redis.new(host: "localhost")
 @redis = Redis.new(url: ENV["REDIS_URL"], ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE })
@@ -88,6 +89,7 @@ def character_background(template)
     '<space-force-rank>'       => -> template { Faker::Military.space_force_rank },
     '<coast-guard-rank>'       => -> template { Faker::Military.coast_guard_rank },
     '<random-adjective>'       => -> template { RandomWord.adjs.next },
+    '<random-item>'            => -> template { Bazaar.item },
 
     # Dis/ambiguations
     # '<random-family-member>'   => -> template { ["<direct-family-member>", "<extended-family-member>"].sample } # replaced by native faker func
