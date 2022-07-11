@@ -3,6 +3,8 @@ require 'faker'
 require 'pry'
 require 'redis'
 
+require 'random_word'
+
 # @redis = Redis.new(host: "localhost")
 @redis = Redis.new(url: ENV["REDIS_URL"], ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE })
 
@@ -19,14 +21,15 @@ def character_background(template)
   ]
 
   additional_fact_templates = [
-    "<fact:hero>",
-    "<fact:superhero>",
-    "<fact:invention>",
-    "<fact:exaggeration>",
+    # "<fact:hero>",
+    # "<fact:superhero>",
+    # "<fact:invention>",
+    # "<fact:exaggeration>",
     "<fact:emotion>",
     "<name> tried to pick up <hobby>, but it was too hard.",
     "<name> is expected to go into the family job in <industry>.",
-    "<name> has a very close relationship with <possessive-adjective> <any-family-member>."
+    "<name> has a very close relationship with <possessive-adjective> <any-family-member>.",
+    "<possessive-adjective> friends describe <object-pronoun> as <random-adjective> and <random-adjective>."
   ]
 
   replacements = {
@@ -84,6 +87,7 @@ def character_background(template)
     '<air-force-rank>'         => -> template { Faker::Military.air_force_rank },
     '<space-force-rank>'       => -> template { Faker::Military.space_force_rank },
     '<coast-guard-rank>'       => -> template { Faker::Military.coast_guard_rank },
+    '<random-adjective>'       => -> template { RandomWord.adjs.next },
 
     # Dis/ambiguations
     # '<random-family-member>'   => -> template { ["<direct-family-member>", "<extended-family-member>"].sample } # replaced by native faker func
