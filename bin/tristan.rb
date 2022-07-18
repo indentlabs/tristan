@@ -276,7 +276,7 @@ def generate_character(event:, template:)
   end
 
   if template.include?('height')
-    age == character_template.fetch(:age, 25)
+    age = character_template.fetch(:age, 25)
     case age
     when 0..1
       inches = rand(10..30)
