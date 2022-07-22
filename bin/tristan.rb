@@ -293,6 +293,7 @@ def generate_character(event:, template:)
     when 50..99
       inches = rand(40..70)
     end
+    inches ||= rand(50..75) # here be dragons
     feet = inches / 12
     inches = inches % 12
 
