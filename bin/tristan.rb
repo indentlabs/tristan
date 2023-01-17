@@ -406,16 +406,16 @@ def generate_creature(event:, template:)
     @redis.set(prompt_id, prompt)
     
     puts "Piping out to Python..."
-    system("python3 generate-image-from-prompt.py #{prompt_id} #{event.interaction.user.username + '-' + Time.now.to_i.to_s + '.png'}")
+    system("python3 generate-image-from-prompt.py #{prompt_id} #{prompt_id + '.png'}")
     
     puts "Back from Python..."
-    if File.exists("generated/#{event.interaction.user.username + '-' + Time.now.to_i.to_s + '.png'}")
+    if File.exist?("generated/#{prompt_id + '.png'}")
       event.send_file(
-        File.open("generated/#{event.interaction.user.username + '-' + Time.now.to_i.to_s + '.png'}", 'r'), 
+        File.open("generated/#{prompt_id + '.png'}", 'r'), 
         caption: "Creature image"
       )
     else
-      puts "No file found!"
+      puts "No file found at generated/#{prompt_id + '.png'}"
     end
   end
 
@@ -488,12 +488,12 @@ def show_creature_template_menu(event)
   ]
   event.respond(content: creature_generation_introduction.join("\n"), ephemeral: true) do |_, view|
     view.row do |r|
-      r.select_menu(custom_id: 'generate_creature', placeholder: 'Build your creature template', min_values: 1, max_values: 25) do |s|
-        # s.option(label: 'Name', value: 'name')
-        # s.option(label: 'Description', value: 'description')
+      r.select_menu(custom_id: 'generate_creature', placeholder: 'Build your creature template', min_values: 1, max_values: 5) do |s|
+        s.option(label: 'Name', value: 'name')
+        s.option(label: 'Description', value: 'description')
         s.option(label: 'Image', value: 'image')
-        # s.option(label: 'Biome', value: 'biome')
-        # s.option(label: 'Taxonomy', value: 'taxonomy')
+        s.option(label: 'Biome', value: 'biome')
+        s.option(label: 'Taxonomy', value: 'taxonomy')
       end
     end
   end
