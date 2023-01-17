@@ -319,7 +319,7 @@ def generate_character(event:, template:)
   if template.include?('religion')
     # So many more at https://en.wikipedia.org/wiki/List_of_religions_and_spiritual_traditions
     # -- PR to Faker gem?
-    character_template[:religion] = %w(Atheist Agnostic Undecided Syntheism Christianity Catholic Protestant Quaker Baptist Lutheranism Methodism Pentecostalism Unitarianism Calvanism Mormonism Paganism Druidism Wicca Scientology Mysticism Islam Hinduism Buddhism Shinto Taoism Vodou Hoodoo Sikhism Judaism Spiritism Shamanism Caodaism Confucianism Jainism Cheondoism Zoroastrianism Rastafari Pastafarianism Jediism Luciferianism Occultism Satanism Chrislam Witch).sample
+    character_template[:religion] = %w(Atheist Agnostic Undecided Bahai Mennonite Amish Syntheism Christianity Catholic Protestant Quaker Baptist Lutheranism Methodism Pentecostalism Unitarianism Calvanism Mormonism Paganism Druidism Wicca Scientology Mysticism Islam Hinduism Buddhism Shinto Taoism Vodou Hoodoo Sikhism Judaism Spiritism Shamanism Caodaism Confucianism Jainism Cheondoism Zoroastrianism Rastafari Pastafarianism Jediism Luciferianism Occultism Satanism Chrislam Witch).sample
   end
 
   if template.include?('languages')
