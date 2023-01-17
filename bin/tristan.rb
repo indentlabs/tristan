@@ -416,6 +416,9 @@ def generate_creature(event:, template:)
       puts "No file found at generated/#{prompt_id + '.png'}"
     end
 
+    require 'pry'
+    binding.pry
+
     attachment = Discordrb::Attachment.new(
       File.open("generated/#{prompt_id + '.png'}", 'r'),
       'creature.png',
