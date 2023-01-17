@@ -409,26 +409,23 @@ def generate_creature(event:, template:)
     system("python3 generate-image-from-prompt.py #{prompt_id} #{prompt_id + '.png'}")
     
     puts "Back from Python..."
+
     if File.exist?("generated/#{prompt_id + '.png'}")
-      # event.send_file(
-      #   File.open("generated/#{prompt_id + '.png'}", 'r'), 
-      #   caption: "Creature image"
-      # )
-      puts "Image generated!"
+      puts "Image generated at generated/#{prompt_id + '.png'}"
     else
       puts "No file found at generated/#{prompt_id + '.png'}"
     end
+
+    attachment = Discordrb::Attachment.new(
+      File.open("generated/#{prompt_id + '.png'}", 'r'),
+      'creature.png',
+      File.extname("generated/#{prompt_id + '.png'}")
+    )
   end
 
   event.respond(
     content: template_prelude + creature_template.map { |key, value| "**#{key.to_s.gsub('_', ' ').capitalize}**: #{value}" }.join("\n"),
-    attachments: [
-      Discordrb::Attachment.new(
-        File.open("generated/#{prompt_id + '.png'}", 'r'),
-        'creature.png',
-        bot
-      )
-    ]
+    attachments: [attachment]
   ) do |_, view|
     view.row do |r|
       r.button(label: 'Generate another creature with this template', style: :success, custom_id: 'reroll_creature:' + template_id)
