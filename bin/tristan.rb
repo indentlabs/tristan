@@ -418,10 +418,7 @@ def generate_creature(event:, template:)
     end
   end
 
-  event.respond(
-    content: template_prelude + creature_template.map { |key, value| "**#{key.to_s.gsub('_', ' ').capitalize}**: #{value}" }.join("\n"),
-    attachments: [attachment]
-  ) do |_, view|
+  event.respond(content: template_prelude + creature_template.map { |key, value| "**#{key.to_s.gsub('_', ' ').capitalize}**: #{value}" }.join("\n")) do |_, view|
     view.row do |r|
       r.button(label: 'Generate another creature with this template', style: :success, custom_id: 'reroll_creature:' + template_id)
       r.button(label: 'Use a new template', style: :secondary, custom_id: 'creature_template_builder')
