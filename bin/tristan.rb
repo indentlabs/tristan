@@ -166,9 +166,7 @@ end
 
 def generate_character(event:, template:)
   puts "Generating a character [#{template.join(',')}] for #{event.interaction.user.username}"
-
   character_template = {}
-
   character_template[:name] = Faker::Name.name if template.include?('name')
 
   if template.include?('archetype')
@@ -383,6 +381,55 @@ def generate_character(event:, template:)
   end
 end
 
+def generate_creature(event:, template:)
+  puts "Generating a creature [#{template.join(',')}] for #{event.interaction.user.username}"
+  creature_template = {}
+  creature_template[:name] = 'Creature name' if template.include?('name')
+
+  template_prelude = "Here's your generated creature, #{event.interaction.user.mention}!\n\n"
+  template_id = Time.now.to_i.to_s + '-' + event.interaction.user.username
+
+  # Save this template in redis so we can look it up to generate new creatures from later (which gets around storing the template in
+  # discord's custom_id, which only allows 100 characters).
+  @redis.set(template_id, template.join(','))
+
+  event.respond(content: template_prelude + creature_template.map { |key, value| "**#{key.to_s.gsub('_', ' ').capitalize}**: #{value}" }.join("\n")) do |_, view|
+    view.row do |r|
+      r.button(label: 'Generate another creature with this template', style: :success, custom_id: 'reroll_creature:' + template_id)
+      r.button(label: 'Use a new template', style: :secondary, custom_id: 'creature_template_builder')
+    end
+  end
+
+  # Start by sending the creature image first, then the template.
+  if template.include?('image')
+    # So... apparently we need Python for anything HF-related because Ruby doesn't have a library for it.
+    # So we'll just shell out to Python and let it do the work for us -- but we'll generate our prompt
+    # here and set it in Redis so Python can pull it out to do the work.
+    prompt = [
+      "Photograph of a #{Faker::Creature::Animal.name} mixed with a #{Faker::Creature::Animal.name}", 
+      "rare undiscovered species of living in forest, photograph, masterpiece, trending on cgsociety, exotic, realistic rendering, fictional creature, alien, cinematic lighting, volumetric lighting, cinematic, fantasy art, detailed"
+    ].join(', ')
+    prompt_id = 'prompt-' + Time.now.to_i.to_s + '-' + event.interaction.user.username
+    @redis.set(prompt_id, prompt)
+    
+    puts "Piping out to Python..."
+    system("python3 generate-image-from-prompt.py #{prompt_id}")
+    
+    puts "Back from Python..."
+
+    if File.exist?("generated/#{prompt_id + '.png'}")
+      puts "Image generated at generated/#{prompt_id + '.png'}"
+      event.bot.send_file(event.channel, File.open("generated/#{prompt_id}.png", 'r'))
+    else
+      puts "No file found at generated/#{prompt_id + '.png'}"
+    end
+  end
+
+  # After sending the image, we should clean it up and delete our local copy so we don't fill up the server's disk.
+  # sleep(5)
+  # File.delete("pic.png")
+end
+
 bot = Discordrb::Bot.new(
   token: ENV.fetch('DISCORD_TOKEN'),
   intents: [:server_messages]
@@ -390,6 +437,7 @@ bot = Discordrb::Bot.new(
 
 bot.register_application_command(:generate, 'Generators') do |generators|
   generators.subcommand(:character, 'Generate a filled-out character template')
+  generators.subcommand(:creature, 'Generate a filled-out creature template')
 end
 
 def show_character_template_menu(event)
@@ -432,16 +480,46 @@ def show_character_template_menu(event)
   end
 end
 
+def show_creature_template_menu(event)
+  creature_generation_introduction = [
+    "**Generate a creature**",
+    "Generating a creature is a WIP. Right now, you can only generate a random creature's art."
+  ]
+  event.respond(content: creature_generation_introduction.join("\n"), ephemeral: true) do |_, view|
+    view.row do |r|
+      r.select_menu(custom_id: 'generate_creature', placeholder: 'Build your creature template', min_values: 1, max_values: 5) do |s|
+        s.option(label: 'Name', value: 'name')
+        s.option(label: 'Description', value: 'description')
+        s.option(label: 'Image', value: 'image')
+        s.option(label: 'Biome', value: 'biome')
+        s.option(label: 'Taxonomy', value: 'taxonomy')
+      end
+    end
+  end
+end
+
 bot.application_command(:generate).subcommand(:character) do |event|
   show_character_template_menu(event)
+end
+
+bot.application_command(:generate).subcommand(:creature) do |event|
+  show_creature_template_menu(event)
 end
 
 bot.button(custom_id: 'character_template_builder') do |event|
   show_character_template_menu(event)
 end
 
+bot.button(custom_id: 'creature_template_builder') do |event|
+  show_creature_template_menu(event)
+end
+
 bot.select_menu(custom_id: 'generate_character') do |event|
   generate_character(event: event, template: event.values)
+end
+
+bot.select_menu(custom_id: 'generate_creature') do |event|
+  generate_creature(event: event, template: event.values)
 end
 
 bot.button(custom_id: /^reroll_character:/) do |event|
@@ -449,6 +527,13 @@ bot.button(custom_id: /^reroll_character:/) do |event|
   attributes = @redis.get(template_id).split(',')
 
   generate_character(event: event, template: attributes)
+end
+
+bot.button(custom_id: /^reroll_creature:/) do |event|
+  template_id = event.interaction.button.custom_id.split(':').last
+  attributes = @redis.get(template_id).split(',')
+
+  generate_creature(event: event, template: attributes)
 end
 
 bot.run
