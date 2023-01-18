@@ -6,7 +6,6 @@ from diffusers import StableDiffusionPipeline, DPMSolverMultistepScheduler
 print("In Pythonland")
 parser = argparse.ArgumentParser()
 parser.add_argument("prompt_id", type=str, help="The id of the prompt to retrieve.")
-parser.add_argument("output_name", type=str, help="The name of the output file.")
 args = parser.parse_args()
 
 # Read prompt from Redis
@@ -24,4 +23,4 @@ pipe.enable_attention_slicing()
 pipe = pipe.to("cuda")
 
 image = pipe(prompt).images[0]
-image.save("generated/" + args.output_name)
+image.save("generated/" + args.prompt_id + '.png')

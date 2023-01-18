@@ -406,24 +406,16 @@ def generate_creature(event:, template:)
     @redis.set(prompt_id, prompt)
     
     puts "Piping out to Python..."
-    system("python3 generate-image-from-prompt.py #{prompt_id} #{prompt_id + '.png'}")
+    system("python3 generate-image-from-prompt.py #{prompt_id}")
     
     puts "Back from Python..."
 
     if File.exist?("generated/#{prompt_id + '.png'}")
       puts "Image generated at generated/#{prompt_id + '.png'}"
+      event.bot.send_file(event.channel, File.open("generated/#{prompt_id}.png", 'r'))
     else
       puts "No file found at generated/#{prompt_id + '.png'}"
     end
-
-    require 'pry'
-    binding.pry
-
-    attachment = Discordrb::Attachment.new(
-      File.open("generated/#{prompt_id + '.png'}", 'r'),
-      'creature.png',
-      File.extname("generated/#{prompt_id + '.png'}")
-    )
   end
 
   event.respond(
