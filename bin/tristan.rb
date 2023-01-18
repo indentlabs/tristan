@@ -393,13 +393,15 @@ def generate_creature(event:, template:)
   # discord's custom_id, which only allows 100 characters).
   @redis.set(template_id, template.join(','))
 
+  message = event.respond("Generating creature for #{event.interaction.user.mention}...")
+
   # Start by sending the creature image first, then the template.
   if template.include?('image')
     # So... apparently we need Python for anything HF-related because Ruby doesn't have a library for it.
     # So we'll just shell out to Python and let it do the work for us -- but we'll generate our prompt
     # here and set it in Redis so Python can pull it out to do the work.
     prompt = [
-      "A #{Faker::Creature::Animal.name} mixed with a #{Faker::Creature::Animal.name}", 
+      "Photograph of a #{Faker::Creature::Animal.name} mixed with a #{Faker::Creature::Animal.name}", 
       "rare undiscovered species of living in forest, photograph, masterpiece, trending on cgsociety, exotic, realistic rendering, fictional creature, alien, cinematic lighting, volumetric lighting, cinematic, fantasy art, detailed"
     ].join(', ')
     prompt_id = 'prompt-' + Time.now.to_i.to_s + '-' + event.interaction.user.username
@@ -417,6 +419,9 @@ def generate_creature(event:, template:)
       puts "No file found at generated/#{prompt_id + '.png'}"
     end
   end
+
+  require 'pry'
+  binding.pry
 
   event.respond(content: template_prelude + creature_template.map { |key, value| "**#{key.to_s.gsub('_', ' ').capitalize}**: #{value}" }.join("\n")) do |_, view|
     view.row do |r|
